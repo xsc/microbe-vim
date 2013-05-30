@@ -57,8 +57,8 @@ __Commands__
 - `update [[<GitHub User>/]<plugin>]`: update all plugins or the given one
 - `list`: list all repositories maintained by microbe and whether they are used by the current user
 
-If no GitHub user is given, `vim-scripts` will be used. Also, for a given `<plugin>` both repositories 
-`<user>/<plugin>` and `<user>/<plugin>.vim` will be checked. 
+Multiple plugins can be given as parameters. If no GitHub user is found, `vim-scripts` will be used. 
+Also, for a given `<plugin>` both repositories `<user>/<plugin>` and `<user>/<plugin>.vim` will be checked. 
 
 Alternatively, the location of a Git repository can be given instead of a user/repository pair. Obviously, this
 requires [Git](http://git-scm.com).
@@ -89,11 +89,16 @@ multiple downloads or updates of the same data.
 __Installing from `vim-scripts`__
 
 ```
-$ microbe install paredit
+$ microbe install paredit jrk/vim-ocaml
 * Installing vim-scripts/paredit ...
   - Resolving Package paredit ... OK.
   - Getting ZIP from https://github.com/vim-scripts/paredit.vim/archive/master.zip ... OK.
   - Extracting Archive to /mnt/data/home/yannick/.microbe/vim-scripts/paredit.vim ... OK.
+  - Adding to Pathogen Bundles ... OK.
+* Installing jrk/vim-ocaml ...
+  - Resolving Package vim-ocaml ... OK.
+  - Getting ZIP from https://github.com/jrk/vim-ocaml/archive/master.zip ... OK.
+  - Extracting Archive to /mnt/data/home/yannick/.microbe/jrk/vim-ocaml ... OK.
   - Adding to Pathogen Bundles ... OK.
 ```
 
