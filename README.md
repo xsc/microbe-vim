@@ -1,7 +1,7 @@
 ## microbe
 
 __microbe__ relies on [pathogen](https://github.com/tpope/vim-pathogen) and [cURL](http://curl.haxx.se/) 
-to provide a simple management tool especiallsý for Github-hosted [Vim](http://www.vim.org) plugins.
+to provide a simple management tool especially for Github-hosted [Vim](http://www.vim.org) plugins.
 
 Requires `bash`, `curl` and `unzip`. If Git-support is desired, [Git](http://git-scm.com) is required.
 
