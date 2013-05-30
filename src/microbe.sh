@@ -20,7 +20,7 @@ if [ -s "$HOME/.microbe.conf" ]; then
 fi
 
 # Microbe Data
-VERSION="0.2.2"
+VERSION="0.2.3-SNAPSHOT"
 VIMDIR="$HOME/.vim"
 AUTOLOAD="$VIMDIR/autoload"
 BUNDLE="$VIMDIR/bundle"
@@ -506,7 +506,7 @@ function action_list() {
         local r=""
         read kb r <<< "$s"
 
-        local installed="(not installed)"
+        local installed="${RESET}(not installed)${RESET}"
         if [ -L "$BUNDLE/${user}_${repo}" ]; then local installed="`green "(installed)"`"; fi
         verbose "$user/`yellow "$repo"`|$installed|${kb}KB|$repoDir"
     done
