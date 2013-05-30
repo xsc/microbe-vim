@@ -27,6 +27,7 @@ BUNDLE="$VIMDIR/bundle"
 PATHOGEN_VIM="$AUTOLOAD/pathogen.vim"
 MICROBE="$REPO"
 if [ -z "$MICROBE" ]; then MICROBE="$HOME/.microbe"; fi
+if [ -z "$COLORS" ]; then COLORS="yes"; fi
 
 # Remote Data
 PATHOGEN_REMOTE="https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim"
@@ -47,9 +48,19 @@ YELLOW="`tput setaf 3`"
 RED="`tput setaf 1`"
 RESET="`tput sgr0`"
 
-function green() { echo -n ${GREEN}${@}${RESET}; }
-function red() { echo -n ${RED}${@}${RESET}; }
-function yellow() { echo -n ${YELLOW}${@}${RESET}; }
+function echo_color() {
+    if [[ "$COLORS" == "yes" ]]; then
+        c="$1"
+        shift
+        echo -n ${c}${@}${RESET};
+    else
+        shift
+        echo -n "$@";
+    fi
+}
+function green() { echo_color "${GREEN}" "${@}"; }
+function red() { echo_color "${RED}" "${@}"; }
+function yellow() { echo_color "${YELLOW}" "${@}"; }
 function echo_green() { green $@; echo; }
 function echo_red() { red $@; echo; }
 function echo_yellow() { yellow $@; echo; }
@@ -381,7 +392,7 @@ function action_update_pathogen() {
 
 function action_list() {
     set -e
-    for dir in `find "$MICROBE" -mindepth 1 -type d -name ".git"`; do
+    for dir in `find "$MICROBE" -mindepth 1 -type d -name ".git" 2> /dev/null`; do
         local repoDir="`dirname "$dir"`"
         local repo="`basename "$repoDir"`"
         local userDir="`dirname "$repoDir"`"

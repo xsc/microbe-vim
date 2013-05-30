@@ -45,6 +45,23 @@ If no GitHub user is given, `vim-scripts` will be used. Also, for a given `<plug
 __NOTE__ : It is necessary to match the repository name's case, since `git clone` seems to be case-sensitive, at
 least when cloning from GitHub.
 
+## Settings
+
+You can create a file `~/.microbe.conf` that contains key/value pairs:
+
+```
+REPO=~/.microbe      # Directory for Git Clones
+VERBOSE=yes          # If set to "no", most output will be suppressed
+DEBUG=no             # If set to "yes", additional information will be printed
+COLORS=yes           # If set to "no", output will not be colorized
+```
+
+The same key/value pairs can be given before calling microbe, e.g.:
+
+```
+$ COLORS=no microbe list
+```
+
 ## Examples
 
 __Installing from `vim-scripts`__
@@ -88,6 +105,38 @@ $ microbe list
 altercation/vim-colors-solarized (installed)
 vim-scripts/VimClojure (not installed)
 vim-scripts/paredit.vim (installed)
+```
+
+__Hitting the Cache__
+
+```
+$ microbe install altercation vim-colors-solarized
+* Using altercation/vim-colors-solarized from Cache.
+```
+
+__Removing a Plugin from Pathogen__
+
+```
+$ microbe remove altercation vim-colors-solarized
+* Removing altercation/vim-colors-solarized ... OK.
+* Removed vim-colors-solarized.
+
+$ microbe list
+altercation/vim-colors-solarized (not installed)
+vim-scripts/VimClojure (not installed)
+vim-scripts/paredit.vim (installed)
+```
+
+__Updating all (or some) Plugins__
+
+```
+$ microbe update
+* Updating altercation/vim-colors-solarized ... OK.
+* Updating vim-scripts/VimClojure ... OK.
+* Updating vim-scripts/paredit.vim ... OK.
+
+$ microbe update paredit
+* Updating vim-scripts/paredit.vim ... OK.
 ```
 
 ## License
