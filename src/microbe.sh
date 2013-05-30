@@ -92,7 +92,7 @@ function error() {
 
 function check_git_repository() {
     which curl >& /dev/null || error "Dependency missing: curl";
-    url="$1"
+    local url="$1"
     debug "Checking: $url"
     curl -o /dev/null --head --silent --fail "$url"
     local st="$?"
@@ -125,8 +125,7 @@ function load_git_repository() {
     debug "microbe directory: $src"
     debug "plugin directory:  $dst"
     if [ -d "$src" ]; then
-        verbose "* Using package from Cache.";
-        link_microbe_repository "$user" "$repo"
+        verbose -n "* Using package from Cache ...";
         set +e
         return 0;
     fi
@@ -150,10 +149,31 @@ function load_git_repository() {
     fi
 
     verbose -n "* Adding to Pathogen Bundles ... "
-    link_microbe_repository "$user" "$repo"
-    success "OK."
     set +e
     return 0
+}
+
+function load_zip_repository() {
+    local user="$1"
+    local repo="$2"
+    local url="$3"
+    local tmp="`mktemp -d`"
+    local dst="$MICROBE/$user/$repo"
+
+    mkdir -p "$MICROBE/$user"
+    verbose -n "* Getting ZIP from `yellow "$url"` ... "
+    curl -Sso "$tmp/archive.zip" -L --fail "$url"
+    local st="$?"
+    if [[ "$st" != "0" ]]; then error "Failed ($st)."; fi
+    success "OK."
+
+    verbose -n "* Extracting Archive to `yellow "$dst"` ... "
+    unzip "$tmp/archive" -d "$tmp" 1> /dev/null
+    if [[ "$?" != "0" ]]; then error "Failed."; fi
+    mv "$tmp/$repo-master" "$dst"
+    rm -rf "$tmp"
+    success "OK."
+    verbose -n "* Adding to Pathogen Bundles ... "
 }
 
 # --------------------------------------------------------------------------
@@ -216,8 +236,8 @@ function action_init() {
     set +e
 }
 
-function action_install() {
-    spec="$1"
+function action_install_single() {
+    local spec="$1"
 
     if [ -z "$spec" ]; then
         echo_red "Usage: $0 install <spec>" 1>&2;
@@ -233,25 +253,26 @@ function action_install() {
     local repo=""
     local url=""
     local resolve="yes"
-
+    local zip="yes"
 
     # Git Repository?
-    if [[ ${spec:0:6} == "git://" ]]; then
-        user="external"
-        repo="`basename "$spec" ".git"`"
-        url="$spec"
-        resolve="no"
+    if [ ${spec:0:6} == "git://" ] || [[ "$spec" == *@* ]] || [ ${spec:0:8} == "https://" ]; then
+        local user="external"
+        local repo="`basename "$spec" ".git"`"
+        local url="$spec"
+        local resolve="no"
+        local zip="no"
         
     # GitHub Repository with given User?
     else if [[ "$spec" == */* ]]; then
         IFS="/" read -r user repo <<< "$spec"
-        url="$GITHUB_HTTPS/$user/$repo"
+        local url="$GITHUB_HTTPS/$user/$repo"
 
     # GitHub Repository of vim-scripts?
     else
-        user="$DEFAULT_USER"
-        repo="$spec"
-        url="$GITHUB_HTTPS/$user/$repo"
+        local user="$DEFAULT_USER"
+        local repo="$spec"
+        local url="$GITHUB_HTTPS/$user/$repo"
     fi; fi
 
     # Initialization
@@ -273,9 +294,10 @@ function action_install() {
     if [[ "$resolve" == "yes" ]]; then
         verbose -n "* Resolving Package `yellow "$repo"` ... "
         checked_url=""
-        for u in "$url" "$url.vim"; do
-            if check_git_repository "$u"; then
-                checked_url="$u";
+        for u in "" ".vim"; do
+            if check_git_repository "$url$u"; then
+                checked_url="$url$u";
+                repo="$repo$u";
                 break;
             fi
         done
@@ -287,11 +309,32 @@ function action_install() {
 
     # Load Repository
     verbose "* Loading `yellow "$user/$repo"` ..."
-    load_git_repository "$user" "$repo" "$checked_url"
+    if [[ "$zip" == "yes" ]]; then
+        zipUrl="$checked_url/archive/master.zip"
+        load_zip_repository "$user" "$repo" "$zipUrl"
+    else 
+        load_git_repository "$user" "$repo" "$checked_url"
+    fi
+    
+    #
+    link_microbe_repository "$user" "$repo"
+    success "OK."
+
+    # Write Metadata
+    verbose -n "* Writing Metadata ... "
+    echo "$spec" > "$MICROBE/$user/$repo/.microbe_spec"
+    success "OK."
 }
 
-function action_remove() {
-    spec="$1"
+function action_install() {
+    while [ $# -gt 0 ]; do
+        action_install_single "$1"
+        shift
+    done
+}
+
+function action_remove_single() {
+    local spec="$1"
     IFS="/" read -r user pckg <<< "$spec"
 
     # Check
@@ -321,8 +364,15 @@ function action_remove() {
     set +e
 }
 
-function action_purge() {
-    spec="$1"
+function action_remove() {
+    while [ $# -gt 0 ]; do
+        action_remove_single "$1"
+        shift
+    done
+}
+
+function action_purge_single() {
+    local spec="$1"
     IFS="/" read -r user pckg <<< "$spec"
     
     # Check
@@ -353,46 +403,64 @@ function action_purge() {
     set +e
 }
 
+function action_purge() {
+    while [ $# -gt 0 ]; do
+        action_purge_single "$1"
+        shift
+    done
+}
+
+function action_update_single() {
+    local specFile="$1"
+    local repoDir="`dirname "$specFile"`"
+    local repo="`basename "$repoDir"`"
+    local userDir="`dirname "$repoDir"`"
+    local user="`basename "$userDir"`"
+
+    verbose -n "* Updating `yellow "$user/$repo"` ... "
+    if [ -d "$repoDir/.git" ]; then
+        cd "$repoDir"
+        git pull -q
+    else 
+        local spec="`cat "$specFile"`"
+        local installed="yes"
+        if [ ! -L "$BUNDLE/${user}_${repo}" ]; then installed="no"; fi
+        action_purge "$user/$repo" >& /dev/null
+        action_install "$spec" 1> /dev/null
+        if [ "$installed" == "no" ]; then rm "$BUNDLE/${user}_${repo}"; fi
+    fi
+    success "OK."
+}
+
 function action_update() {
-    spec="$1"
-    IFS="/" read -r user pckg <<< "$spec"
 
     # Update all?
-    if [ -z "$user" -a -z "$pckg" ]; then
+    if [ "$#" == "0" ]; then
         set -e
-        for dir in `find "$MICROBE" -mindepth 1 -type d -name ".git"`; do
-            local repoDir="`dirname "$dir"`"
-            local repo="`basename "$repoDir"`"
-            local userDir="`dirname "$repoDir"`"
-            local user="`basename "$userDir"`"
-
-            verbose -n "* Updating `yellow "$user/$repo"` ... "
-            cd "$repoDir"
-            git pull -q
-            success "OK."
+        for f in `find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec"`; do
+            action_update_single "$f"
         done
         set +e
     else
-        # Fallback to Default User?
-        if [ -z "$pckg" ]; then
-            pckg="$user"
-            user="$DEFAULT_USER"
-        fi
-    
-        # Update
-        set -e
-        for r in "$pckg" "$pckg.vim";
-        do
-            path="$MICROBE/$user/$r"
-            if [ -d "$path/.git" ]; then
-                verbose -n "* Updating `yellow "$user/$r"` ... "
-                cd "$path"
-                git pull -q 
-                success "OK."
-
+        while [ $# -gt 0 ]; do
+            local spec="$1"
+            IFS="/" read -r user pckg <<< "$spec"
+        
+            # Fallback to Default User?
+            if [ -z "$pckg" ]; then
+                pckg="$user"
+                user="$DEFAULT_USER"
             fi
+        
+            # Update
+            set -e
+            local path="$MICROBE/$user/$pckg"
+            if [ ! -e "$path/.microbe_spec" ]; then path="$path.vim"; fi
+            if [ ! -e "$path/.microbe_spec" ]; then shift; continue; fi
+            action_update_single "$path/.microbe_spec"
+            set +e
+            shift
         done
-        set +e
     fi
 }
 
@@ -415,7 +483,7 @@ function action_update_pathogen() {
 
 function action_list() {
     set -e
-    for dir in `find "$MICROBE" -mindepth 1 -type d -name ".git" 2> /dev/null`; do
+    for dir in `find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec" 2> /dev/null`; do
         local repoDir="`dirname "$dir"`"
         local repo="`basename "$repoDir"`"
         local userDir="`dirname "$repoDir"`"
@@ -438,6 +506,7 @@ if [ -z "$COMMAND" ] || [[ "$COMMAND" == "help" ]]; then
     exit 0;
 fi
 
+shift
 case "$COMMAND" in
     "version")
         action_version
@@ -446,16 +515,16 @@ case "$COMMAND" in
         action_init
         ;;
     "install")
-        action_install "$2" "$3"
+        action_install "$@"
         ;;
     "remove")
-        action_remove "$2" "$3"
+        action_remove "$@"
         ;;
     "purge")
-        action_purge "$2" "$3"
+        action_purge "$@"
         ;;
     "update")
-        action_update "$2" "$3"
+        action_update "$@"
         ;;
     "update-pathogen")
         action_update_pathogen
