@@ -90,12 +90,11 @@ function error() {
 # --------------------------------------------------------------------------
 # Utilities
 
-function check_github_repository() {
+function check_git_repository() {
     which curl >& /dev/null || error "Dependency missing: curl";
-    if [ -z "$1" -o -z "$2" ]; then return 1; fi
-    local url="$GITHUB_HTTPS/$1/$2"
+    url="$1"
     debug "Checking: $url"
-    curl -o /dev/null --head --silent --fail "$GITHUB_HTTPS/$1/$2"
+    curl -o /dev/null --head --silent --fail "$url"
     local st="$?"
     debug "curl returned status $st."
     if [[ "$st" != "0" ]]; then return 1; fi
@@ -115,12 +114,12 @@ function link_microbe_repository() {
     fi
 }
 
-function load_github_repository() {
+function load_git_repository() {
     which git >& /dev/null || error "Dependency missing: git";
     local user="$1"
     local repo="$2"
+    local url="$3"
     local src="$MICROBE/$user/$repo";
-    local url="$GITHUB_HTTPS/$user/$repo";
 
     set -e
     debug "microbe directory: $src"
@@ -218,61 +217,86 @@ function action_init() {
 }
 
 function action_install() {
-    user="$1"
-    pckg="$2"
+    spec="$1"
 
-    # Check
-    if [ -z "$user" -a -z "$pckg" ]; then
-        error "Usage: $0 install [<GitHub User>] <Package>"
+    if [ -z "$spec" ]; then
+        echo_red "Usage: $0 install <spec>" 1>&2;
+        echo "<spec> is one of:" 1>&2
+        echo "- <GitHub User>/<Repository>" 1>&2
+        echo "- <vim-scripts Repository>" 1>&2
+        echo "- git://..." 1>&2
+        exit 1;
     fi
 
-    # Fallback to Default User?
-    if [ -z "$pckg" ]; then
-        pckg="$user"
+    # Data
+    local user=""
+    local repo=""
+    local url=""
+    local resolve="yes"
+
+
+    # Git Repository?
+    if [[ ${spec:0:6} == "git://" ]]; then
+        user="external"
+        repo="`basename "$spec" ".git"`"
+        url="$spec"
+        resolve="no"
+        
+    # GitHub Repository with given User?
+    else if [[ "$spec" == */* ]]; then
+        IFS="/" read -r user repo <<< "$spec"
+        url="$GITHUB_HTTPS/$user/$repo"
+
+    # GitHub Repository of vim-scripts?
+    else
         user="$DEFAULT_USER"
-    fi
+        repo="$spec"
+        url="$GITHUB_HTTPS/$user/$repo"
+    fi; fi
 
     # Initialization
     action_init
 
-    # Find Repository
-    local path="$MICROBE/$user/$pckg"
+    # Repository in Cache?
+    local path="$MICROBE/$user/$repo"
     if [ -d "$path" ]; then
-        verbose "* Using `yellow "$user/$pckg"` from Cache.";
-        link_microbe_repository "$user" "$pckg"
+        verbose "* Using `yellow "$user/$repo"` from Cache.";
+        link_microbe_repository "$user" "$repo"
         return 0;
-    fi
-    
-    if [ -d "$path.vim" ]; then
-        verbose "* Using `yellow "$user/$pckg.vim"` from Cache.";
-        link_microbe_repository "$user" "$pckg.vim"
+    else if [ -d "$path.vim" ]; then
+        verbose "* Using `yellow "$user/$repo.vim"` from Cache.";
+        link_microbe_repository "$user" "$repo.vim"
         return 0;
-    fi
+    fi; fi
 
-    verbose -n "* Resolving Package `yellow "$pckg"` ... "
-    repo=""
-    for r in "$pckg" "$pckg.vim"
-    do
-        if check_github_repository "$user" "$r"; then
-            repo="$r"
-            break
-        fi
-    done
-    if [ -z "$repo" ]; then error "Could not find Repository."; fi
-    success "OK."
+    # Resolve?
+    if [[ "$resolve" == "yes" ]]; then
+        verbose -n "* Resolving Package `yellow "$repo"` ... "
+        checked_url=""
+        for u in "$url" "$url.vim"; do
+            if check_git_repository "$u"; then
+                checked_url="$u";
+                break;
+            fi
+        done
+        if [ -z "$checked_url" ]; then error "Could not find Repository."; fi
+        success "OK."
+    else 
+        checked_url="$url"
+    fi
 
     # Load Repository
     verbose "* Loading `yellow "$user/$repo"` ..."
-    load_github_repository "$user" "$repo"
+    load_git_repository "$user" "$repo" "$checked_url"
 }
 
 function action_remove() {
-    user="$1"
-    pckg="$2"
+    spec="$1"
+    IFS="/" read -r user pckg <<< "$spec"
 
     # Check
     if [ -z "$user" -a -z "$pckg" ]; then
-        error "Usage: $0 install [<GitHub User>] <Package>"
+        error "Usage: $0 install [<GitHub User>/]<Package>"
     fi
     
     # Fallback to Default User?
@@ -298,9 +322,9 @@ function action_remove() {
 }
 
 function action_purge() {
-    user="$1"
-    pckg="$2"
-
+    spec="$1"
+    IFS="/" read -r user pckg <<< "$spec"
+    
     # Check
     if [ -z "$user" -a -z "$pckg" ]; then
         error "Usage: $0 install [<GitHub User>] <Package>"
@@ -330,8 +354,8 @@ function action_purge() {
 }
 
 function action_update() {
-    user="$1"
-    pckg="$2"
+    spec="$1"
+    IFS="/" read -r user pckg <<< "$spec"
 
     # Update all?
     if [ -z "$user" -a -z "$pckg" ]; then
