@@ -20,7 +20,7 @@ VIMDIR="$HOME/.vim"
 AUTOLOAD="$VIMDIR/autoload"
 BUNDLE="$VIMDIR/bundle"
 PATHOGEN_VIM="$AUTOLOAD/pathogen.vim"
-MICROBE_REPO="$HOME/.microbe"
+if [ -z "$MICROBE" ]; then MICROBE="$HOME/.microbe"; fi
 
 # Remote Data
 PATHOGEN_REMOTE="https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim"
@@ -101,7 +101,7 @@ function resolve_github_repository() {
 function link_microbe_repository() {
     local user="$1"
     local repo="$2"
-    local src="$MICROBE_REPO/$user/$repo";
+    local src="$MICROBE/$user/$repo";
     local dst="$BUNDLE/${user}_${repo}"
 
     if [ ! -e "$dst" -o -L "$dst" ]; then
@@ -115,7 +115,7 @@ function load_github_repository() {
     which git >& /dev/null || error "Dependency missing: git";
     local user="$1"
     local repo="$2"
-    local src="$MICROBE_REPO/$user/$repo";
+    local src="$MICROBE/$user/$repo";
     local url="$GITHUB_HTTPS/$user/$repo";
 
     set -e
@@ -173,7 +173,7 @@ function action_init() {
     debug "git:  `which git`"
 
     set -e
-    for dir in "$AUTOLOAD" "$BUNDLE" "$MICROBE_REPO"; do
+    for dir in "$AUTOLOAD" "$BUNDLE" "$MICROBE"; do
         if [ ! -d "$dir" ]; then
             verbose -n "* Initializing '`basename "$dir"`' ... "
             mkdir -p "$dir"
@@ -227,7 +227,7 @@ function action_install() {
     action_init
 
     # Find Repository
-    local path="$MICROBE_REPO/$user/$pckg"
+    local path="$MICROBE/$user/$pckg"
     if [ -d "$path" ]; then
         verbose "* Using `yellow "$user/$pckg"` from Cache.";
         link_microbe_repository "$user" "$pckg"
@@ -262,7 +262,7 @@ function action_remove() {
     set -e
     for r in "$pckg" "$pckg.vim";
     do
-        path="$MICROBE_REPO/$user/$r"
+        path="$MICROBE/$user/$r"
         if [ -d "$path" ]; then
             verbose -n "* Removing `yellow "$user/$r"` ... "
             if [ -L "$BUNDLE/${user}_${r}" ]; then rm "$BUNDLE/${user}_${r}"; fi
@@ -293,7 +293,7 @@ function action_purge() {
     set -e
     for r in "$pckg" "$pckg.vim";
     do
-        path="$MICROBE_REPO/$user/$r"
+        path="$MICROBE/$user/$r"
         if [ -d "$path" ]; then
             verbose -n "* Purging `yellow "$user/$r"` ... "
             rm -rf "$path"
@@ -307,19 +307,46 @@ function action_purge() {
 }
 
 function action_update() {
-    set -e
-    for dir in `find "$MICROBE_REPO" -mindepth 1 -type d -name ".git"`; do
-        local repoDir="`dirname "$dir"`"
-        local repo="`basename "$repoDir"`"
-        local userDir="`dirname "$repoDir"`"
-        local user="`basename "$userDir"`"
+    user="$1"
+    pckg="$2"
 
-        verbose -n "* Updating `yellow "$user/$repo"` ... "
-        cd "$repoDir"
-        git pull -q
-        success "OK."
-    done
-    set +e
+    # Update all?
+    if [ -z "$user" -a -z "$pckg" ]; then
+        set -e
+        for dir in `find "$MICROBE" -mindepth 1 -type d -name ".git"`; do
+            local repoDir="`dirname "$dir"`"
+            local repo="`basename "$repoDir"`"
+            local userDir="`dirname "$repoDir"`"
+            local user="`basename "$userDir"`"
+
+            verbose -n "* Updating `yellow "$user/$repo"` ... "
+            cd "$repoDir"
+            git pull -q
+            success "OK."
+        done
+        set +e
+    else
+        # Fallback to Default User?
+        if [ -z "$pckg" ]; then
+            pckg="$user"
+            user="$DEFAULT_USER"
+        fi
+    
+        # Update
+        set -e
+        for r in "$pckg" "$pckg.vim";
+        do
+            path="$MICROBE/$user/$r"
+            if [ -d "$path/.git" ]; then
+                verbose -n "* Updating `yellow "$user/$r"` ... "
+                cd "$path"
+                git pull -q 
+                success "OK."
+
+            fi
+        done
+        set +e
+    fi
 }
 
 # --------------------------------------------------------------------------
@@ -346,7 +373,7 @@ case "$COMMAND" in
         action_purge "$2" "$3"
         ;;
     "update")
-        action_update
+        action_update "$2" "$3"
         ;;
     *)
         error "Unknown Action: $COMMAND";
