@@ -20,7 +20,7 @@ if [ -s "$HOME/.microbe.conf" ]; then
 fi
 
 # Microbe Data
-VERSION="0.1.0"
+VERSION="0.2.0-SNAPSHOT"
 VIMDIR="$HOME/.vim"
 AUTOLOAD="$VIMDIR/autoload"
 BUNDLE="$VIMDIR/bundle"
