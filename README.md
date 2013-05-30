@@ -105,7 +105,7 @@ $ microbe install paredit jrk/vim-ocaml
 __Installing from specific GitHub User__
 
 ```
-$ microbe install altercation vim-colors-solarized
+$ microbe install altercation/vim-colors-solarized
 * Installing altercation/vim-colors-solarized ...
   - Resolving Package vim-colors-solarized ... OK.
   - Getting ZIP from https://github.com/altercation/vim-colors-solarized/archive/master.zip ... OK.
@@ -147,14 +147,14 @@ Note the size difference between `external/vim-ocaml` (Git clone) and `jrk/vim-o
 __Hitting the Cache__
 
 ```
-$ microbe install altercation vim-colors-solarized
+$ microbe install altercation/vim-colors-solarized
 * Using altercation/vim-colors-solarized from Cache.
 ```
 
 __Removing a Plugin from Pathogen__
 
 ```
-$ microbe remove altercation vim-colors-solarized
+$ microbe remove altercation/vim-colors-solarized
 * Removing altercation/vim-colors-solarized ... OK.
 
 $ microbe list
