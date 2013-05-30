@@ -8,11 +8,16 @@
 # --------------------------------------------------------------------------
 # Normalize Home
 which readlink >& /dev/null
-if [[ "$?" != "0" ]]; then
-    echo "Dependency missing: readlink." 1>&2;
-    exit 1;
+if [[ "$?" == "0" ]]
+then
+    h="`readlink -f "$HOME"`"
+    HOME="$h"
 fi
-HOME="`readlink -f "$HOME"`"
+
+# Read Configuration
+if [ -s "$HOME/.microbe.conf" ]; then
+    eval "`cat "$HOME/.microbe.conf"`"
+fi
 
 # Microbe Data
 VERSION="0.1.0-SNAPSHOT"
@@ -20,6 +25,7 @@ VIMDIR="$HOME/.vim"
 AUTOLOAD="$VIMDIR/autoload"
 BUNDLE="$VIMDIR/bundle"
 PATHOGEN_VIM="$AUTOLOAD/pathogen.vim"
+MICROBE="$REPO"
 if [ -z "$MICROBE" ]; then MICROBE="$HOME/.microbe"; fi
 
 # Remote Data

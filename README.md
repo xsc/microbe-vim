@@ -7,7 +7,20 @@ Requires Bash, Vim and Git.
 
 ## Installation
 
+__User Installation__
 
+```
+mkdir ~/.bin
+curl -fkLo "~/.bin/microbe" "https://raw.github.com/xsc/microbe-vim/stable/src/microbe.sh" 
+chmod +x ~/.bin/microbe
+```
+
+__System-wide Installation__
+
+```
+sudo curl -fkLo "/usr/bin/microbe" "https://raw.github.com/xsc/microbe-vim/stable/src/microbe.sh" 
+sudo chmod +x /usr/bin/microbe
+```
 
 ## Usage
 
@@ -34,6 +47,8 @@ least when cloning from GitHub.
 
 ## Examples
 
+__Installing from `vim-scripts`__
+
 ```
 $ microbe install paredit
 * Resolving Package paredit ... OK.
@@ -47,6 +62,32 @@ remote: Total 37 (delta 9), reused 33 (delta 5)
 Unpacking objects: 100% (37/37), done.
 
 * Adding to Pathogen Bundles ... OK.
+```
+
+__Installing from specific GitHub User__
+
+```
+$ microbe install altercation vim-colors-solarized
+* Resolving Package vim-colors-solarized ... OK.
+* Loading altercation/vim-colors-solarized ...
+* Cloning from https://github.com/altercation/vim-colors-solarized ...
+
+Cloning into '/mnt/data/home/yannick/.microbe/altercation/vim-colors-solarized'...
+remote: Counting objects: 16, done.
+remote: Compressing objects: 100% (12/12), done.
+remote: Total 16 (delta 2), reused 11 (delta 0)
+Unpacking objects: 100% (16/16), done.
+
+* Adding to Pathogen Bundles ... OK.
+```
+
+__Listing Plugins__
+
+```
+$ microbe list
+altercation/vim-colors-solarized (installed)
+vim-scripts/VimClojure (not installed)
+vim-scripts/paredit.vim (installed)
 ```
 
 ## License
