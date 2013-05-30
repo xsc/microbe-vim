@@ -507,10 +507,8 @@ function action_list() {
         read kb r <<< "$s"
 
         local installed="(not installed)"
-        if [ -L "$BUNDLE/${user}_${repo}" ]; then local installed="    `green "(installed)"`"; fi
-        local line="$(printf "%50s     %s     %6s    %s" "$user/`yellow "$repo"`" "$installed" "${kb}KB" "$repoDir")"
-
-        verbose "$line"
+        if [ -L "$BUNDLE/${user}_${repo}" ]; then local installed="`green "(installed)"`"; fi
+        verbose "$user/`yellow "$repo"`|$installed|${kb}KB|$repoDir"
     done
     set +e
 }
@@ -546,7 +544,7 @@ case "$COMMAND" in
         action_update_pathogen
         ;;
     "list")
-        action_list
+        action_list | column -s "|" -t
         ;;
     *)
         error "Unknown Action: $COMMAND";
