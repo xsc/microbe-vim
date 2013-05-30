@@ -227,14 +227,20 @@ function action_install() {
     action_init
 
     # Find Repository
-    verbose -n "* Resolving Package `yellow "$pckg"` ... "
-    repo="`resolve_github_repository "$user" "$pckg"`"
-    if [ -z "$repo" ]; then error "Could not find Repository."; fi
-    success "OK."
+    local path="$MICROBE_REPO/$user/$pckg"
+    if [ -d "$path" ]; then
+        verbose "* Using `yellow "$user/$pckg"` from Cache.";
+        link_microbe_repository "$user" "$pckg"
+    else
+        verbose -n "* Resolving Package `yellow "$pckg"` ... "
+        repo="`resolve_github_repository "$user" "$pckg"`"
+        if [ -z "$repo" ]; then error "Could not find Repository."; fi
+        success "OK."
 
-    # Load Repository
-    verbose "* Loading `yellow "$user/$repo"` ..."
-    load_github_repository "$user" "$repo"
+        # Load Repository
+        verbose "* Loading `yellow "$user/$repo"` ..."
+        load_github_repository "$user" "$repo"
+    fi
 }
 
 function action_remove() {
@@ -259,7 +265,6 @@ function action_remove() {
         path="$MICROBE_REPO/$user/$r"
         if [ -d "$path" ]; then
             verbose -n "* Removing `yellow "$user/$r"` ... "
-            rm -rf "$path"
             if [ -L "$BUNDLE/${user}_${r}" ]; then rm "$BUNDLE/${user}_${r}"; fi
             success "OK."
 
@@ -269,19 +274,49 @@ function action_remove() {
     set +e
 }
 
+function action_purge() {
+    user="$1"
+    pckg="$2"
+
+    # Check
+    if [ -z "$user" -a -z "$pckg" ]; then
+        error "Usage: $0 install [<GitHub User>] <Package>"
+    fi
+    
+    # Fallback to Default User?
+    if [ -z "$pckg" ]; then
+        pckg="$user"
+        user="$DEFAULT_USER"
+    fi
+    
+    # Remove
+    set -e
+    for r in "$pckg" "$pckg.vim";
+    do
+        path="$MICROBE_REPO/$user/$r"
+        if [ -d "$path" ]; then
+            verbose -n "* Purging `yellow "$user/$r"` ... "
+            rm -rf "$path"
+            if [ -L "$BUNDLE/${user}_${r}" ]; then rm "$BUNDLE/${user}_${r}"; fi
+            success "OK."
+
+        fi
+    done
+    verbose "* Purged `yellow "$pckg"`."
+    set +e
+}
+
 # --------------------------------------------------------------------------
 # Handlers
-action_version
-
-if [[ "$COMMAND" == "version" ]]; then exit 0; fi
-verbose ""
-
 if [ -z "$COMMAND" ] || [[ "$COMMAND" == "help" ]]; then
     action_help
     exit 0;
 fi
 
 case "$COMMAND" in
+    "version")
+        action_version
+        ;;
     "init")
         action_init
         ;;
@@ -290,6 +325,9 @@ case "$COMMAND" in
         ;;
     "remove")
         action_remove "$2" "$3"
+        ;;
+    "purge")
+        action_purge "$2" "$3"
         ;;
     *)
         error "Unknown Action: $COMMAND";
