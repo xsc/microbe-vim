@@ -102,19 +102,6 @@ function check_github_repository() {
     return 0;
 }
 
-function resolve_github_repository() {
-    local user="$1"
-    local pckg="$2"
-    for r in "$pckg" "$pckg.vim"
-    do
-        if check_github_repository "$user" "$r"; then
-            echo "$r"
-            return 0;
-        fi
-    done
-    return 1;
-}
-
 function link_microbe_repository() {
     local user="$1"
     local repo="$2"
@@ -186,8 +173,13 @@ function action_init() {
     which curl >& /dev/null || error "Dependency missing: curl"; 
     which git >& /dev/null || error "Dependency missing: git"; 
 
-    debug "curl: `which curl`"
-    debug "git:  `which git`"
+    debug "curl:                 `which curl`"
+    debug "git:                  `which git`"
+    debug "microbe repository:   $MICROBE"
+    debug "home path:            $HOME"
+    debug "vim autoload path:    $AUTOLOAD"
+    debug "pathogen bundle path: $AUTOLOAD"
+    debug "pathogen path:        $PATHOGEN_VIM"
 
     set -e
     for dir in "$AUTOLOAD" "$BUNDLE" "$MICROBE"; do
@@ -258,7 +250,14 @@ function action_install() {
     fi
 
     verbose -n "* Resolving Package `yellow "$pckg"` ... "
-    repo="`resolve_github_repository "$user" "$pckg"`"
+    repo=""
+    for r in "$pckg" "$pckg.vim"
+    do
+        if check_github_repository "$user" "$r"; then
+            repo="$r"
+            break
+        fi
+    done
     if [ -z "$repo" ]; then error "Could not find Repository."; fi
     success "OK."
 
