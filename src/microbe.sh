@@ -146,7 +146,7 @@ function load_github_repository() {
         set -e
     fi
 
-    verbose -n "* Creating Link ... "
+    verbose -n "* Adding to Pathogen Bundles ... "
     link_microbe_repository "$user" "$repo"
     success "OK."
     set +e
@@ -231,16 +231,23 @@ function action_install() {
     if [ -d "$path" ]; then
         verbose "* Using `yellow "$user/$pckg"` from Cache.";
         link_microbe_repository "$user" "$pckg"
-    else
-        verbose -n "* Resolving Package `yellow "$pckg"` ... "
-        repo="`resolve_github_repository "$user" "$pckg"`"
-        if [ -z "$repo" ]; then error "Could not find Repository."; fi
-        success "OK."
-
-        # Load Repository
-        verbose "* Loading `yellow "$user/$repo"` ..."
-        load_github_repository "$user" "$repo"
+        return 0;
     fi
+    
+    if [ -d "$path.vim" ]; then
+        verbose "* Using `yellow "$user/$pckg.vim"` from Cache.";
+        link_microbe_repository "$user" "$pckg.vim"
+        return 0;
+    fi
+
+    verbose -n "* Resolving Package `yellow "$pckg"` ... "
+    repo="`resolve_github_repository "$user" "$pckg"`"
+    if [ -z "$repo" ]; then error "Could not find Repository."; fi
+    success "OK."
+
+    # Load Repository
+    verbose "* Loading `yellow "$user/$repo"` ..."
+    load_github_repository "$user" "$repo"
 }
 
 function action_remove() {
@@ -349,6 +356,41 @@ function action_update() {
     fi
 }
 
+function action_update_pathogen() {
+    if [ ! -s "$PATHOGEN_VIM" ]; then
+        action_init;
+    else
+        verbose -n "* Updating Pathogen ... "
+        mv "$PATHOGEN_VIM" "$PATHOGEN_VIM.bak"
+        curl -Sso "$PATHOGEN_VIM" "$PATHOGEN_REMOTE" 
+        if [[ "$?" != "0" ]]; then
+            error "Could not download Pathogen."
+            mv "$PATHOGEN_VIM.bak" "$PATHOGEN_VIM"
+        else 
+            rm "$PATHOGEN_VIM.bak"
+            success "OK."
+        fi
+    fi
+}
+
+function action_list() {
+    set -e
+    for dir in `find "$MICROBE" -mindepth 1 -type d -name ".git"`; do
+        local repoDir="`dirname "$dir"`"
+        local repo="`basename "$repoDir"`"
+        local userDir="`dirname "$repoDir"`"
+        local user="`basename "$userDir"`"
+
+        verbose -n "`yellow "$user/$repo"` "
+        if [ -L "$BUNDLE/${user}_${repo}" ]; then
+            verbose "`green "(installed)"`"
+        else
+            verbose "(not installed)"
+        fi
+    done
+    set +e
+}
+
 # --------------------------------------------------------------------------
 # Handlers
 if [ -z "$COMMAND" ] || [[ "$COMMAND" == "help" ]]; then
@@ -374,6 +416,12 @@ case "$COMMAND" in
         ;;
     "update")
         action_update "$2" "$3"
+        ;;
+    "update-pathogen")
+        action_update_pathogen
+        ;;
+    "list")
+        action_list
         ;;
     *)
         error "Unknown Action: $COMMAND";
