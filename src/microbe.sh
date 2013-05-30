@@ -326,7 +326,7 @@ function action_install_single() {
     do
         local n="`basename "$x"`"
         case "$n" in
-            syntax|indent|autoload|colors|ftplugin|*.vim|doc)
+            syntax|indent|autoload|colors|ftplugin|*.vim|doc|.git)
                 ;;
             *)
                 rm -r "$x"
