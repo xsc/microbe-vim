@@ -102,7 +102,7 @@ function link_microbe_repository() {
     local user="$1"
     local repo="$2"
     local src="$MICROBE_REPO/$user/$repo";
-    local dst="$BUNDLE/$user_$repo"
+    local dst="$BUNDLE/${user}_${repo}"
 
     if [ ! -e "$dst" -o -L "$dst" ]; then
         ln -sf "$src" "$dst"
@@ -217,6 +217,38 @@ function action_install() {
     load_github_repository "$user" "$repo"
 }
 
+function action_remove() {
+    user="$1"
+    pckg="$2"
+
+    # Check
+    if [ -z "$user" -a -z "$pckg" ]; then
+        error "Usage: $0 install [<GitHub User>] <Package>"
+    fi
+    
+    # Fallback to Default User?
+    if [ -z "$pckg" ]; then
+        pckg="$user"
+        user="$DEFAULT_USER"
+    fi
+
+    # Remove
+    set -e
+    for r in "$pckg" "$pckg.vim";
+    do
+        path="$MICROBE_REPO/$user/$r"
+        if [ -d "$path" ]; then
+            verbose -n "* Removing `yellow "$user/$r"` ... "
+            rm -rf "$path"
+            if [ -L "$BUNDLE/${user}_${r}" ]; then rm "$BUNDLE/${user}_${r}"; fi
+            success "OK."
+
+        fi
+    done
+    verbose "* Removed `yellow "$pckg"`."
+    set +e
+}
+
 # --------------------------------------------------------------------------
 # Handlers
 action_version
@@ -235,6 +267,9 @@ case "$COMMAND" in
         ;;
     "install")
         action_install "$2" "$3"
+        ;;
+    "remove")
+        action_remove "$2" "$3"
         ;;
     *)
         error "Unknown Action: $COMMAND";
