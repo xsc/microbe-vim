@@ -486,13 +486,17 @@ function action_list() {
         local repo="`basename "$repoDir"`"
         local userDir="`dirname "$repoDir"`"
         local user="`basename "$userDir"`"
+        
+        local s="`du -sk "$repoDir"`"
+        local kb=""
+        local r=""
+        read kb r <<< "$s"
 
-        verbose -n "`yellow "$user/$repo"` "
-        if [ -L "$BUNDLE/${user}_${repo}" ]; then
-            verbose "`green "(installed)"`"
-        else
-            verbose "(not installed)"
-        fi
+        local installed="(not installed)"
+        if [ -L "$BUNDLE/${user}_${repo}" ]; then local installed="    `green "(installed)"`"; fi
+        local line="$(printf "%50s     %s     %6s" "$user/`yellow "$repo"`" "$installed" "${kb}KB")"
+
+        verbose "$line"
     done
     set +e
 }
