@@ -20,7 +20,7 @@ if [ -s "$HOME/.microbe.conf" ]; then
 fi
 
 # Microbe Data
-VERSION="0.2.0"
+VERSION="0.2.1"
 VIMDIR="$HOME/.vim"
 AUTOLOAD="$VIMDIR/autoload"
 BUNDLE="$VIMDIR/bundle"
@@ -326,7 +326,7 @@ function action_install_single() {
     do
         local n="`basename "$x"`"
         case "$n" in
-            syntax|indent|autoload|colors|ftplugin|*.vim|doc|.git)
+            syntax|indent|autoload|colors|ftplugin|*.vim|doc|plugin|.git)
                 ;;
             *)
                 rm -r "$x"
