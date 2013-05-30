@@ -1,22 +1,27 @@
 ## microbe
 
-Microbe relies on [pathogen](https://github.com/tpope/vim-pathogen), [Git](http://git-scm.com) 
-and [cURL](http://curl.haxx.se/) to provide a simple management tool for Github-hosted 
+__microbe__ relies on [pathogen](https://github.com/tpope/vim-pathogen), [Git](http://git-scm.com) 
+and [cURL](http://curl.haxx.se/) to provide a simple management tool especiallsý for Github-hosted 
 [Vim](http://www.vim.org) plugins.
 
 Requires Bash, cURL, Vim and Git.
 
-__NOTE__: If you are looking for a command line tool that is able to handle more than just GitHub-hosted
+__NOTE__: If you are looking for a command line tool that is able to handle more than just Git-hosted
 Plugins, you might want to have a look at [vim-pandemic](https://github.com/jwcxz/vim-pandemic). It is,
 due to its capabilities, obviously a little more verbose than microbe (oh, how the names fit!) but looks 
 rather usable. Not a command line tool but very powerful in the same domain is 
 [neobundle](https://github.com/Shougo/neobundle.vim).
 
-__Another NOTE__: This only works with GitHub repositories that have the directories/files to load in their
-top-level directory. A prominent example that can not be installed using microbe is
-[powerline](https://github.com/Lokaltok/powerline).
+## Premise
+
+__microbe__  is all about minimalism. It reduces the size of plugins by only retaining necessary 
+data (or rather discarding obviously unnecessary one) and offers ways for multiple users to
+fetch plugins from a single central directory. The command line interface resembles that of `apt-get`,
+hopefully making usage intuitive and concise.
 
 ## Installation
+
+Current stable Version: __0.2.0__
 
 __User Installation__
 
