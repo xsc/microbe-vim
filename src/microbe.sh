@@ -306,6 +306,22 @@ function action_purge() {
     set +e
 }
 
+function action_update() {
+    set -e
+    for dir in `find "$MICROBE_REPO" -mindepth 1 -type d -name ".git"`; do
+        local repoDir="`dirname "$dir"`"
+        local repo="`basename "$repoDir"`"
+        local userDir="`dirname "$repoDir"`"
+        local user="`basename "$userDir"`"
+
+        verbose -n "* Updating `yellow "$user/$repo"` ... "
+        cd "$repoDir"
+        git pull -q
+        success "OK."
+    done
+    set +e
+}
+
 # --------------------------------------------------------------------------
 # Handlers
 if [ -z "$COMMAND" ] || [[ "$COMMAND" == "help" ]]; then
@@ -328,6 +344,9 @@ case "$COMMAND" in
         ;;
     "purge")
         action_purge "$2" "$3"
+        ;;
+    "update")
+        action_update
         ;;
     *)
         error "Unknown Action: $COMMAND";
