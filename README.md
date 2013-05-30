@@ -5,6 +5,11 @@ provide a simple management tool for Github-hosted [Vim](http://www.vim.org) plu
 
 Requires Bash, Vim and Git.
 
+__NOTE__ : If you are looking for a command line tool that is able to handle more than just GitHub-hosted
+Plugins, you might want to have a look at [vim-pandemic](https://github.com/jwcxz/vim-pandemic). It is,
+due to its capabilities, obviously a little more verbose than microbe (oh, how the names fit!) but looks 
+rather usable.
+
 ## Installation
 
 __User Installation__
@@ -14,6 +19,9 @@ mkdir ~/.bin
 curl -fkLo "~/.bin/microbe" "https://raw.github.com/xsc/microbe-vim/stable/src/microbe.sh" 
 chmod +x ~/.bin/microbe
 ```
+
+Make sure to add `~/.bin` to your `$PATH`, e.g. using `export PATH="$PATH:~/.bin"` in your
+`~/.bashrc`.
 
 __System-wide Installation__
 
@@ -25,7 +33,7 @@ sudo chmod +x /usr/bin/microbe
 ## Usage
 
 ```
-microbe <command> <parameters>
+microbe <command> [<parameters>]
 ```
 
 __Commands__
@@ -61,6 +69,10 @@ The same key/value pairs can be given before calling microbe, e.g.:
 ```
 $ COLORS=no microbe list
 ```
+
+The `REPO` option is very useful if you have a central directory accessible by all
+Vim users, either on the same machine or via some network file system, preventing
+multiple downloads or updates of the same data. 
 
 ## Examples
 
