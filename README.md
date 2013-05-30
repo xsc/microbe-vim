@@ -1,12 +1,11 @@
 ## microbe
 
-__microbe__ relies on [pathogen](https://github.com/tpope/vim-pathogen), [Git](http://git-scm.com) 
-and [cURL](http://curl.haxx.se/) to provide a simple management tool especiallsý for Github-hosted 
-[Vim](http://www.vim.org) plugins.
+__microbe__ relies on [pathogen](https://github.com/tpope/vim-pathogen) and [cURL](http://curl.haxx.se/) 
+to provide a simple management tool especiallsý for Github-hosted [Vim](http://www.vim.org) plugins.
 
-Requires Bash, cURL, Vim and Git.
+Requires `bash`, `curl` and `unzip`. If Git-support is desired, [Git](http://git-scm.com) is required.
 
-__NOTE__: If you are looking for a command line tool that is able to handle more than just Git-hosted
+__NOTE__: If you are looking for a command line tool that is able to handle more than just Github-hosted
 Plugins, you might want to have a look at [vim-pandemic](https://github.com/jwcxz/vim-pandemic). It is,
 due to its capabilities, obviously a little more verbose than microbe (oh, how the names fit!) but looks 
 rather usable. Not a command line tool but very powerful in the same domain is 
@@ -21,7 +20,7 @@ hopefully making usage intuitive and concise.
 
 ## Installation
 
-Current stable Version: __0.2.0__
+Current stable Version: __0.2.1__
 
 __User Installation__
 
@@ -52,17 +51,17 @@ __Commands__
 - `help`: show usage information
 - `version`: show version
 - `update-pathogen`: update pathogen to the most recent version
-- `install [<GitHub User>] <plugin>`: clone the given plugin and add its contents to pathogen's include path
-- `remove [<GitHub User>] <plugin>`: remove the given plugin from pathogen's include path
-- `purge [<GitHub User>] <plugin>`: remove the given plugin from the machine
-- `update [<GitHub User>] [<plugin>]`: update all plugins or the given one
+- `install [<GitHub User>/]<plugin>`: clone the given plugin and add its contents to pathogen's include path
+- `remove [<GitHub User>/]<plugin>`: remove the given plugin from pathogen's include path
+- `purge [<GitHub User>/]<plugin>`: remove the given plugin from the machine
+- `update [[<GitHub User>/]<plugin>]`: update all plugins or the given one
 - `list`: list all repositories maintained by microbe and whether they are used by the current user
 
 If no GitHub user is given, `vim-scripts` will be used. Also, for a given `<plugin>` both repositories 
 `<user>/<plugin>` and `<user>/<plugin>.vim` will be checked. 
 
-__NOTE__ : It is necessary to match the repository name's case, since `git clone` seems to be case-sensitive, at
-least when cloning from GitHub.
+Alternatively, the location of a Git repository can be given instead of a user/repository pair. Obviously, this
+requires [Git](http://git-scm.com).
 
 ## Settings
 
@@ -91,44 +90,54 @@ __Installing from `vim-scripts`__
 
 ```
 $ microbe install paredit
-* Resolving Package paredit ... OK.
-* Loading vim-scripts/paredit.vim ...
-* Cloning from https://github.com/vim-scripts/paredit.vim ...
-
-Cloning into '/mnt/data/home/yannick/.microbe/vim-scripts/paredit.vim'...
-remote: Counting objects: 37, done.
-remote: Compressing objects: 100% (22/22), done.
-remote: Total 37 (delta 9), reused 33 (delta 5)
-Unpacking objects: 100% (37/37), done.
-
-* Adding to Pathogen Bundles ... OK.
+* Installing vim-scripts/paredit ...
+  - Resolving Package paredit ... OK.
+  - Getting ZIP from https://github.com/vim-scripts/paredit.vim/archive/master.zip ... OK.
+  - Extracting Archive to /mnt/data/home/yannick/.microbe/vim-scripts/paredit.vim ... OK.
+  - Adding to Pathogen Bundles ... OK.
 ```
 
 __Installing from specific GitHub User__
 
 ```
 $ microbe install altercation vim-colors-solarized
-* Resolving Package vim-colors-solarized ... OK.
-* Loading altercation/vim-colors-solarized ...
-* Cloning from https://github.com/altercation/vim-colors-solarized ...
+* Installing altercation/vim-colors-solarized ...
+  - Resolving Package vim-colors-solarized ... OK.
+  - Getting ZIP from https://github.com/altercation/vim-colors-solarized/archive/master.zip ... OK.
+  - Extracting Archive to /mnt/data/home/yannick/.microbe/altercation/vim-colors-solarized ... OK.
+  - Adding to Pathogen Bundles ... OK.
+```
 
-Cloning into '/mnt/data/home/yannick/.microbe/altercation/vim-colors-solarized'...
-remote: Counting objects: 16, done.
-remote: Compressing objects: 100% (12/12), done.
-remote: Total 16 (delta 2), reused 11 (delta 0)
-Unpacking objects: 100% (16/16), done.
+__Installing from Git Repository__
 
-* Adding to Pathogen Bundles ... OK.
+```
+$ microbe install https://github.com/jrk/vim-ocaml
+* Installing external/vim-ocaml ...
+  - Cloning from https://github.com/jrk/vim-ocaml ...
+
+Cloning into '/mnt/data/home/yannick/.microbe/external/vim-ocaml'...
+remote: Counting objects: 12, done.
+remote: Compressing objects: 100% (8/8), done.
+remote: Total 12 (delta 1), reused 12 (delta 1)
+Unpacking objects: 100% (12/12), done.
+
+  - Adding to Pathogen Bundles ... OK.
 ```
 
 __Listing Plugins__
 
 ```
 $ microbe list
-altercation/vim-colors-solarized (installed)
-vim-scripts/VimClojure (not installed)
-vim-scripts/paredit.vim (installed)
+altercation/vim-colors-solarized         (installed)       92KB    ../.microbe/altercation/vim-colors-solarized
+              external/vim-ocaml         (installed)      308KB    /mnt/data/home/yannick/.microbe/external/vim-ocaml
+                   jrk/vim-ocaml         (installed)       68KB    ../.microbe/jrk/vim-ocaml
+             vim-scripts/awk.vim         (installed)       24KB    ../.microbe/vim-scripts/awk.vim
+         vim-scripts/paredit.vim         (installed)       36KB    ../.microbe/vim-scripts/paredit.vim
+         vim-scripts/taglist.vim         (installed)      232KB    ../.microbe/vim-scripts/taglist.vim
+          vim-scripts/VimClojure         (installed)      216KB    ../.microbe/vim-scripts/VimClojure
 ```
+
+Note the size difference between `external/vim-ocaml` (Git clone) and `jrk/vim-ocaml`.
 
 __Hitting the Cache__
 
@@ -142,12 +151,14 @@ __Removing a Plugin from Pathogen__
 ```
 $ microbe remove altercation vim-colors-solarized
 * Removing altercation/vim-colors-solarized ... OK.
-* Removed vim-colors-solarized.
 
 $ microbe list
-altercation/vim-colors-solarized (not installed)
-vim-scripts/VimClojure (not installed)
-vim-scripts/paredit.vim (installed)
+altercation/vim-colors-solarized     (not installed)       92KB    ../.microbe/altercation/vim-colors-solarized
+                   jrk/vim-ocaml         (installed)       68KB    ../.microbe/jrk/vim-ocaml
+             vim-scripts/awk.vim         (installed)       24KB    ../.microbe/vim-scripts/awk.vim
+         vim-scripts/paredit.vim         (installed)       36KB    ../.microbe/vim-scripts/paredit.vim
+         vim-scripts/taglist.vim         (installed)      232KB    ../.microbe/vim-scripts/taglist.vim
+          vim-scripts/VimClojure         (installed)      216KB    ../.microbe/vim-scripts/VimClojure
 ```
 
 __Updating all (or some) Plugins__
@@ -155,10 +166,14 @@ __Updating all (or some) Plugins__
 ```
 $ microbe update
 * Updating altercation/vim-colors-solarized ... OK.
-* Updating vim-scripts/VimClojure ... OK.
+* Updating jrk/vim-ocaml ... OK.
+* Updating vim-scripts/awk.vim ... OK.
 * Updating vim-scripts/paredit.vim ... OK.
+* Updating vim-scripts/taglist.vim ... OK.
+* Updating vim-scripts/VimClojure ... OK.
 
 $ microbe update paredit
+* Updating vim-scripts/paredit.vim ... OK.
 * Updating vim-scripts/paredit.vim ... OK.
 ```
 
