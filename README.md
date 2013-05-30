@@ -182,7 +182,6 @@ $ microbe update
 
 $ microbe update paredit
 * Updating vim-scripts/paredit.vim ... OK.
-* Updating vim-scripts/paredit.vim ... OK.
 ```
 
 ## License
