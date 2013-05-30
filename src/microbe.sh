@@ -125,12 +125,12 @@ function load_git_repository() {
     debug "microbe directory: $src"
     debug "plugin directory:  $dst"
     if [ -d "$src" ]; then
-        verbose -n "* Using package from Cache ...";
+        verbose -n "  - Using package from Cache ...";
         set +e
         return 0;
     fi
 
-    verbose "* Cloning from `yellow "$url"` ..."
+    verbose "  - Cloning from `yellow "$url"` ..."
     if [[ "$VERBOSE" != "no" ]]; then
         verbose ""
         git clone --depth=1 "$url" "$src"
@@ -148,7 +148,7 @@ function load_git_repository() {
         set -e
     fi
 
-    verbose -n "* Adding to Pathogen Bundles ... "
+    verbose -n "  - Adding to Pathogen Bundles ... "
     set +e
     return 0
 }
@@ -161,19 +161,19 @@ function load_zip_repository() {
     local dst="$MICROBE/$user/$repo"
 
     mkdir -p "$MICROBE/$user"
-    verbose -n "* Getting ZIP from `yellow "$url"` ... "
+    verbose -n "  - Getting ZIP from `yellow "$url"` ... "
     curl -Sso "$tmp/archive.zip" -L --fail "$url"
     local st="$?"
     if [[ "$st" != "0" ]]; then error "Failed ($st)."; fi
     success "OK."
 
-    verbose -n "* Extracting Archive to `yellow "$dst"` ... "
+    verbose -n "  - Extracting Archive to `yellow "$dst"` ... "
     unzip "$tmp/archive" -d "$tmp" 1> /dev/null
     if [[ "$?" != "0" ]]; then error "Failed."; fi
     mv "$tmp/$repo-master" "$dst"
     rm -rf "$tmp"
     success "OK."
-    verbose -n "* Adding to Pathogen Bundles ... "
+    verbose -n "  - Adding to Pathogen Bundles ... "
 }
 
 # --------------------------------------------------------------------------
@@ -290,9 +290,11 @@ function action_install_single() {
         return 0;
     fi; fi
 
+    echo "* Installing `yellow "$user/$repo"` ..."
+
     # Resolve?
     if [[ "$resolve" == "yes" ]]; then
-        verbose -n "* Resolving Package `yellow "$repo"` ... "
+        verbose -n "  - Resolving Package `yellow "$repo"` ... "
         checked_url=""
         for u in "" ".vim"; do
             if check_git_repository "$url$u"; then
@@ -308,7 +310,6 @@ function action_install_single() {
     fi
 
     # Load Repository
-    verbose "* Loading `yellow "$user/$repo"` ..."
     if [[ "$zip" == "yes" ]]; then
         zipUrl="$checked_url/archive/master.zip"
         load_zip_repository "$user" "$repo" "$zipUrl"
@@ -318,12 +319,25 @@ function action_install_single() {
     
     #
     link_microbe_repository "$user" "$repo"
-    success "OK."
+
+    # Delete everything that is not needed
+    set -e
+    for x in `find "$MICROBE/$user/$repo" -mindepth 1 -maxdepth 1 2> /dev/null`;
+    do
+        local n="`basename "$x"`"
+        case "$n" in
+            syntax|indent|autoload|colors|ftplugin|*.vim|doc)
+                ;;
+            *)
+                rm -r "$x"
+                ;;
+        esac
+    done
 
     # Write Metadata
-    verbose -n "* Writing Metadata ... "
     echo "$spec" > "$MICROBE/$user/$repo/.microbe_spec"
     success "OK."
+    set +e
 }
 
 function action_install() {
@@ -494,7 +508,7 @@ function action_list() {
 
         local installed="(not installed)"
         if [ -L "$BUNDLE/${user}_${repo}" ]; then local installed="    `green "(installed)"`"; fi
-        local line="$(printf "%50s     %s     %6s" "$user/`yellow "$repo"`" "$installed" "${kb}KB")"
+        local line="$(printf "%50s     %s     %6s    %s" "$user/`yellow "$repo"`" "$installed" "${kb}KB" "$repoDir")"
 
         verbose "$line"
     done
