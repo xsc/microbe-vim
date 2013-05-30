@@ -18,9 +18,12 @@ data (or rather discarding obviously unnecessary one) and offers ways for multip
 fetch plugins from a single central directory. The command line interface resembles that of `apt-get`,
 hopefully making usage intuitive and concise.
 
+Moreover, the script only depends on tools available out-of-the-box on most UNIX systems: `bash`,
+`curl`, `unzip`, `column`, ... Only if Git resources shall be accessed is additional work necessary.
+
 ## Installation
 
-Current stable Version: __0.2.1__
+Current stable Version: __0.2.2__
 
 __User Installation__
 
