@@ -360,7 +360,6 @@ function action_remove_single() {
 
         fi
     done
-    verbose "* Removed `yellow "$pckg"`."
     set +e
 }
 
@@ -399,7 +398,6 @@ function action_purge_single() {
 
         fi
     done
-    verbose "* Purged `yellow "$pckg"`."
     set +e
 }
 
@@ -437,7 +435,7 @@ function action_update() {
     # Update all?
     if [ "$#" == "0" ]; then
         set -e
-        for f in `find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec"`; do
+        for f in `find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec" 2> /dev/null | sort`; do
             action_update_single "$f"
         done
         set +e
@@ -483,7 +481,7 @@ function action_update_pathogen() {
 
 function action_list() {
     set -e
-    for dir in `find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec" 2> /dev/null`; do
+    for dir in `find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec" 2> /dev/null | sort`; do
         local repoDir="`dirname "$dir"`"
         local repo="`basename "$repoDir"`"
         local userDir="`dirname "$repoDir"`"
