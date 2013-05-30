@@ -9,10 +9,11 @@ Requires Bash, cURL, Vim and Git.
 __NOTE__: If you are looking for a command line tool that is able to handle more than just GitHub-hosted
 Plugins, you might want to have a look at [vim-pandemic](https://github.com/jwcxz/vim-pandemic). It is,
 due to its capabilities, obviously a little more verbose than microbe (oh, how the names fit!) but looks 
-rather usable.
+rather usable. Not a command line tool but very powerful in the same domain is 
+[neobundle](https://github.com/Shougo/neobundle.vim).
 
 __Another NOTE__: This only works with GitHub repositories that have the directories/files to load in their
-top-level directory. A prominent example that does can not be installed using microbe is
+top-level directory. A prominent example that can not be installed using microbe is
 [powerline](https://github.com/Lokaltok/powerline).
 
 ## Installation
