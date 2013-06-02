@@ -66,6 +66,24 @@ function bundlePath() {
     echo "$BUNDLE/${group}_${plugin}"
 }
 
+function findPlugin() {
+    local spec="$1"
+    local group=""
+    local plugin=""
+    IFS="/" read -r group plugin <<< "$spec"
+    if [ -z "$group" ]; then return 1; fi
+    if [ -z "$plugin" ]; then plugin="$group"; fi
+    for ext in "" ".vim"; do
+        local path=$(pluginPath "$group" "$plugin$ext");
+        if [ -d "$path" ]; then echo "$group $plugin$ext"; fi
+    done
+    
+    local candidate=$(find "$MICROBE" -maxdepth 2 -mindepth 2 -type d -name "$plugin" -or -name "$plugin.vim" | head -1)
+    if [ -z "$candidate" ]; then return 1; fi
+    echo "$(basename $(dirname "$candidate")) $(basename "$candidate")"
+    return 0
+}
+
 function activatePlugin() {
     local group="$1"
     local plugin="$2"
