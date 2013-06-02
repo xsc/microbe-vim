@@ -85,11 +85,12 @@ function findPlugin() {
     if [ -z "$plugin" ]; then plugin="$group"; fi
     for ext in "" ".vim"; do
         local path=$(pluginPath "$group" "$plugin$ext");
-        if [ -d "$path" ]; then echo "$group $plugin$ext"; fi
+        if [ -e "$path/.microbe_spec" ]; then echo "$group $plugin$ext"; fi
     done
     
     local candidate=$(find "$MICROBE" -maxdepth 2 -mindepth 2 -type d -name "$plugin" -or -name "$plugin.vim" | head -1)
     if [ -z "$candidate" ]; then return 1; fi
+    if [ ! -e "$candidate/.microbe_spec" ]; then return 1; fi
     echo "$(basename $(dirname "$candidate")) $(basename "$candidate")"
     return 0
 }

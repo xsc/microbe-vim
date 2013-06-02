@@ -3,7 +3,6 @@
 while [ $# -gt 0 ]; do
     pluginSpec="$1"
     spec=$(findPlugin "$pluginSpec");
-    verbose "<<$pluginSpec:$spec>>"
     if [ -z "$spec" ]; then shift; continue; fi
 
     read -r group plugin <<< "$spec"

@@ -17,6 +17,7 @@ while [ $# -gt 0 ]; do
     if [ -d "$path" ]; then
         verbose "- Using Cached Plugin."
     else
+        mkdir -p "$(dirname "$path")"
         __run "fetch.$dispatch" "$group" "$plugin" "$url"
         if [[ "$?" != "0" ]]; then exit 1; fi
     fi
