@@ -4,7 +4,7 @@
 # Generic Logging Functions
 
 function error() {
-    echo -n "$(red "(ERROR)  ") " 1>&2
+    echo -n "$(red "(ERROR) ") " 1>&2
     echo "$@" 1>&2
 }
 
@@ -25,7 +25,7 @@ function verbose() {
 
 function debug() {
     if [[ "$DEBUG" == "yes" ]]; then
-        echo -n "$(yellow "(DEBUG)  ")";
-        echo "$@";
+        echo -n "$(yellow "(DEBUG) ")" 1>&2;
+        echo "$@" 1>&2
     fi
 }
