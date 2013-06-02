@@ -2,18 +2,53 @@
 
 # ----------------------------------------------------------------
 # Utilities
+function checkUrl() {
+    which curl >& /dev/null || error "Dependency missing: curl";
+    local url="$1"
+    debug "Checking: $url"
+    curl -o /dev/null --head --silent --fail "$url"
+    local st="$?"
+    debug "curl returned status $st."
+    if [[ "$st" != "0" ]]; then return 1; fi
+    return 0;
+}
+
 function parseSpec() {
     local spec="$1"
     local group=""
     local plugin=""
+    local url=""
+    local path=""
+    local dispatch="zip"
+    local resolve="yes"
 
     if [[ "$spec" == */* ]]; then
         IFS="/" read -r group plugin <<< "$1"
+        local url="$GITHUB_HTTPS/$group/$plugin"
+        local path="/archive/master.zip"
     else
         local group="$DEFAULT_GROUP"
         local plugin="$spec"
+        local url="$GITHUB_HTTPS/$group/$plugin"
+        local path="/archive/master.zip"
     fi
-    echo "$group $plugin"
+
+    if [ "$resolve" == "yes" ]; then
+        local found="no"
+        for ext in "" ".vim"; do
+            if checkUrl "$url$ext"; then
+                local url="$url$ext"
+                local plugin="$plugin$ext"
+                local found="yes"
+                break;
+            fi
+        done
+        if [ "$found" != "yes" ]; then
+            fatal "Could not find Plugin: $group/$plugin"
+        fi
+    fi
+
+    echo "$group $plugin $dispatch $url$path"
 }
 
 # ----------------------------------------------------------------

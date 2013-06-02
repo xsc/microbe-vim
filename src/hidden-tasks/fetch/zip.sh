@@ -19,13 +19,13 @@ trap 'rm -r "$tmp";' 0
 
 # --------------------------------------------------------------
 # Download & Extract
-verbose -n "- Getting ZIP from $(yellow "$url") ... "
+verbose -n "- Getting ZIP from $url ... "
 if ! curl -Sso "$tmp/archive.zip" -L --fail "$url" >& /dev/null; then fatal "Download failed."; fi
 success "OK."
 
-verbose -n "- Extracting Archive to $(yellow "$dst") ... "
-unzip "$tmp/archive.zip" -d "$tmp" 1> /dev/null
-if [[ "$?" != "0" ]]; then error "Failed."; fi
+verbose -n "- Extracting Archive to $dst ... "
+unzip "$tmp/archive.zip" -d "$tmp" >& /dev/null
+if [[ "$?" != "0" ]]; then fatal "Extracting failed."; fi
 find "$tmp" -maxdepth 1 -mindepth 1 -type d -name "*-master" -exec "mv" \{\} "$dst" \;
 success "OK."
 
