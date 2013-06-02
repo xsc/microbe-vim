@@ -17,7 +17,7 @@ if [ -z "$COLORS" ]; then COLORS="yes"; fi
 # Remote Data
 PATHOGEN_REMOTE="https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim"
 GITHUB_HTTPS="https://github.com"
-DEFAULT_USER="vim-scripts"
+DEFAULT_GROUP="vim-scripts"
 
 # Script Data
 SELF=$(cd $(dirname "$0") && pwd)
