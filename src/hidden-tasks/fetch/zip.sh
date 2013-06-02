@@ -1,5 +1,8 @@
 #!/bin/bash
 
+which curl >& /dev/null || fatal "Dependency missing: curl"
+which unzip >& /dev/null || fatal "Dependency missing: unzip"
+
 # --------------------------------------------------------------
 # Parameters
 group="$1"
@@ -7,7 +10,7 @@ plugin="$2"
 url="$3"
 
 if [ -z "$group" -o -z "$plugin" -o -z "$url" ]; then
-    fatal "Usage: install.zip <group id> <plugin id> <zip url>"
+    fatal "Usage: fetch.zip <group id> <plugin id> <zip url>"
 fi
 
 # --------------------------------------------------------------

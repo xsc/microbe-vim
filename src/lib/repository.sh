@@ -22,16 +22,26 @@ function parseSpec() {
     local dispatch="zip"
     local resolve="yes"
 
-    if [[ "$spec" == */* ]]; then
-        IFS="/" read -r group plugin <<< "$1"
-        local url="$GITHUB_HTTPS/$group/$plugin"
-        local path="/archive/master.zip"
-    else
-        local group="$DEFAULT_GROUP"
-        local plugin="$spec"
-        local url="$GITHUB_HTTPS/$group/$plugin"
-        local path="/archive/master.zip"
-    fi
+    case "$spec" in
+        git://*|https://*|*@*)
+            local url="$spec"
+            local resolve="no"
+            local dispatch="git"
+            local group="external-git"
+            local plugin=$(basename "$spec" ".git")
+            ;;
+        */*)
+            IFS="/" read -r group plugin <<< "$1"
+            local url="$GITHUB_HTTPS/$group/$plugin"
+            local path="/archive/master.zip"
+            ;;
+        *)
+            local group="$DEFAULT_GROUP"
+            local plugin="$spec"
+            local url="$GITHUB_HTTPS/$group/$plugin"
+            local path="/archive/master.zip"
+            ;;
+    esac
 
     if [ "$resolve" == "yes" ]; then
         local found="no"
