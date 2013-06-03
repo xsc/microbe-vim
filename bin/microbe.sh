@@ -1,5 +1,5 @@
 #!/bin/bash
-export __BASHING_VERSION='0.1.0-alpha6'
+export __BASHING_VERSION='0.1.0'
 export __VERSION='0.2.3'
 export __ARTIFACT_ID='microbe'
 export __GROUP_ID='microbe'
@@ -426,58 +426,19 @@ function __run() {
   local cmd="$1"
   shift
   case "$cmd" in
-    "")
-      __run "help";
-      return $?
-      ;;
-    "purge")
-      cli_purge "$@" &
-      local pid="$!"
-      ;;
-    "update")
-      cli_update "$@" &
-      local pid="$!"
-      ;;
-    "install")
-      cli_install "$@" &
-      local pid="$!"
-      ;;
-    "init")
-      cli_init "$@" &
-      local pid="$!"
-      ;;
-    "remove")
-      cli_remove "$@" &
-      local pid="$!"
-      ;;
-    "list")
-      cli_list "$@" &
-      local pid="$!"
-      ;;
-    "version")
-      cli_version "$@" &
-      local pid="$!"
-      ;;
-    "update-pathogen")
-      cli_update-pathogen "$@" &
-      local pid="$!"
-      ;;
-    "plugin.activate")
-      cli_plugin_activate "$@" &
-      local pid="$!"
-      ;;
-    "plugin.deactivate")
-      cli_plugin_deactivate "$@" &
-      local pid="$!"
-      ;;
-    "fetch.zip")
-      cli_fetch_zip "$@" &
-      local pid="$!"
-      ;;
-    "fetch.git")
-      cli_fetch_git "$@" &
-      local pid="$!"
-      ;;
+    "") __run "help"; return $?;;
+    "purge") cli_purge "$@" & local pid="$!";;
+    "update") cli_update "$@" & local pid="$!";;
+    "install") cli_install "$@" & local pid="$!";;
+    "init") cli_init "$@" & local pid="$!";;
+    "remove") cli_remove "$@" & local pid="$!";;
+    "list") cli_list "$@" & local pid="$!";;
+    "version") cli_version "$@" & local pid="$!";;
+    "update-pathogen") cli_update-pathogen "$@" & local pid="$!";;
+    "plugin.activate") cli_plugin_activate "$@" & local pid="$!";;
+    "plugin.deactivate") cli_plugin_deactivate "$@" & local pid="$!";;
+    "fetch.zip") cli_fetch_zip "$@" & local pid="$!";;
+    "fetch.git") cli_fetch_git "$@" & local pid="$!";;
     "help")
       echo "Usage: $0 <command> [<parameters> ...]" 1>&2
       cat 1>&2 <<HELP
@@ -499,9 +460,7 @@ HELP
       echo "microbe 0.2.3 (bash $BASH_VERSION)"
       status=0
       ;;
-    *)
-      echo "Unknown Command: $cmd" 1>&2;
-      ;;
+    *) echo "Unknown Command: $cmd" 1>&2;;
   esac
   if [ ! -z "$pid" ]; then
       wait "$pid"
