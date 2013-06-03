@@ -7,6 +7,8 @@ if [ -z "$group" -o -z "$plugin" ]; then
     fatal "Usage: plugin.activate <group id> <plugin id>"
 fi
 
-verbose -n "- Activating Plugin: $group/$plugin ... "
-activatePlugin "$group" "$plugin"
-success "OK."
+if [ ! -L "$(bundlePath "$group" "$plugin")" ]; then
+    verbose -n "- Activating Plugin: $group/$plugin ... "
+    activatePlugin "$group" "$plugin"
+    success "OK."
+fi
