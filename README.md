@@ -27,7 +27,7 @@ __User Installation__
 
 ```
 mkdir ~/.bin
-curl -fkLo "~/.bin/microbe" "https://raw.github.com/xsc/microbe-vim/stable/bin/microbe.sh" 
+curl -fkLo ~/.bin/microbe "https://raw.github.com/xsc/microbe-vim/stable/bin/microbe.sh" 
 chmod +x ~/.bin/microbe
 ```
 
