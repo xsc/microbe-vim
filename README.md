@@ -153,6 +153,28 @@ jrk/vim-ocaml            (installed)      72KB   /home/yannick/.microbe/jrk/vim-
 vim-scripts/paredit.vim  (not installed)  108KB  /home/yannick/.microbe/vim-scripts/paredit.vim
 ```
 
+## Export, Import and Configuration via `.vimrc`
+
+You can use microbe to write the installed plugins to a file:
+
+```
+$ microbe export > microbe.plugins
+$ cat microbe.plugins
+"bundle jrk/vim-ocaml
+"bundle paredit
+```
+
+The format of the plugin list is suitable for use in `.vimrc`, since `"` indicates a comment
+and will thus not influence your actual configuration.
+
+You can import packages using:
+
+```
+microbe import [<file>]
+```
+
+where `<file>` defaults to your `.vimrc`.
+
 ## License
 
 Copyright &copy; 2013 Yannick Scherer

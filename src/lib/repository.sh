@@ -117,9 +117,13 @@ function deactivatePlugin() {
 
 # ----------------------------------------------------------------
 # List
+function listSpecFiles() {
+    find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec" 2> /dev/null
+}
+
 function listRepository() {
     set -e
-    for dir in `find "$MICROBE" -mindepth 3 -maxdepth 3 -type f -name ".microbe_spec" 2> /dev/null | sort`; do
+    for dir in $(listSpecFiles | sort); do
         local repoDir=$(dirname "$dir")
         local repo=$(basename "$repoDir")
         local userDir=$(dirname "$repoDir")
