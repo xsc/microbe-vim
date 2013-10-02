@@ -21,7 +21,7 @@ The command line interface resembles that of `apt-get`, hopefully making usage i
 
 ## Installation
 
-Current stable Version: __0.2.3__
+Current stable Version: __0.2.4__
 
 __User Installation__
 
