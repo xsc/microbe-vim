@@ -1,4 +1,5 @@
 #!/bin/bash
+# <help>update the given (or all) plugins</help>
 
 set -e
 if [ "$#" == "0" ]; then

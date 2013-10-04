@@ -1,4 +1,5 @@
 #!/bin/bash
+# <help>fetch and activate the given plugins</help>
 
 __run "init"
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# <help>initialize pathogen and microbe</help>
 
 set -e
 for dir in "$AUTOLOAD" "$BUNDLE" "$MICROBE"; do

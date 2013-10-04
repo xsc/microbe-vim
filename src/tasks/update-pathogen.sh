@@ -1,4 +1,5 @@
 #!/bin/bash
+# <help>fetch the latest pathogen version</help>
 
 if [ ! -s "$PATHOGEN_VIM" ]; then
     __run "init"

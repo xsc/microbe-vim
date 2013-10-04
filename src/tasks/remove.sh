@@ -1,4 +1,5 @@
 #!/bin/bash
+# <help>deactivate a plugin</help>
 
 while [ $# -gt 0 ]; do
     pluginSpec="$1"

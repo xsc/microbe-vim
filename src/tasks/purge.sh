@@ -1,4 +1,5 @@
 #!/bin/bash
+# <help>remove a plugin from your file system</help>
 
 while [ $# -gt 0 ]; do
     pluginSpec="$1"
