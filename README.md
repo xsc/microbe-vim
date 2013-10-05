@@ -21,13 +21,13 @@ The command line interface resembles that of `apt-get`, hopefully making usage i
 
 ## Installation
 
-Current stable Version: __0.2.4__
+Current stable Version: __0.2.5__
 
 __User Installation__
 
 ```
 mkdir ~/.bin
-curl -fkLo ~/.bin/microbe "https://raw.github.com/xsc/microbe-vim/stable/bin/microbe.sh" 
+curl -fkLo ~/.bin/microbe "https://raw.github.com/xsc/microbe-vim/stable/bin/microbe"
 chmod +x ~/.bin/microbe
 ```
 
@@ -37,7 +37,7 @@ Make sure to add `~/.bin` to your `$PATH`, e.g. using `export PATH="$PATH:~/.bin
 __System-wide Installation__
 
 ```
-sudo curl -fkLo "/usr/bin/microbe" "https://raw.github.com/xsc/microbe-vim/stable/bin/microbe.sh" 
+sudo curl -fkLo "/usr/bin/microbe" "https://raw.github.com/xsc/microbe-vim/stable/bin/microbe"
 sudo chmod +x /usr/bin/microbe
 ```
 
@@ -165,12 +165,13 @@ $ cat microbe.plugins
 ```
 
 The format of the plugin list is suitable for use in `.vimrc`, since `"` indicates a comment
-and will thus not influence your actual configuration.
+and will thus not influence your actual configuration (this is very similar to [infect](https://github.com/csexton/infect)'s
+approach to plugin management.
 
-You can import packages using:
+You can load packages using:
 
 ```
-microbe import [<file>]
+microbe load [<file>]
 ```
 
 where `<file>` defaults to your `.vimrc`.
