@@ -24,7 +24,7 @@ if [[ "$VERBOSE" != "no" ]]; then
     verbose ""
 else
     set +e
-    tmp="`mktemp`"
+    tmp="$(__mktemp)"
     trap 'rm -f "$tmp";' 0
     git clone --depth=1 "$url" "$dst" >& "$tmp";
     if [[ "$?" != "0" ]]; then

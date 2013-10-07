@@ -17,7 +17,7 @@ fi
 # Paths
 dst=$(pluginPath "$group" "$plugin")
 if [ -d "$dst" ]; then fatal "Directory $dst does already exist."; fi
-tmp=$(mktemp -d)
+tmp=$(__mktemp -d)
 trap 'rm -r "$tmp";' 0
 
 # --------------------------------------------------------------
