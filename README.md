@@ -178,6 +178,6 @@ where `<file>` defaults to your `.vimrc`.
 
 ## License
 
-Copyright &copy; 2013 Yannick Scherer
+Copyright &copy; 2013-2015 Yannick Scherer
 
 Distributed under the MIT license.
